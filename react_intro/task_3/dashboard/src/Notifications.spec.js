@@ -9,12 +9,14 @@ test('renders the notifications title', () => {
 
 test('renders the close button', () => {
   render(<Notifications />);
-  const buttonElement = screen.getByLabelText(/close/i);
+  const buttonElement = screen.getByRole('button', { name: /close/i });
   expect(buttonElement).toBeInTheDocument();
 });
 
 test('renders 3 list items', () => {
   render(<Notifications />);
+  const listElement = screen.getByRole('list');
+  expect(listElement).toBeInTheDocument();
   const listItems = screen.getAllByRole('listitem');
   expect(listItems).toHaveLength(3);
 });
