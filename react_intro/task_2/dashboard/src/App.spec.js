@@ -27,13 +27,6 @@ test('renders holberton logo', () => {
 
 test('renders 2 input elements', () => {
   render(<App />);
-  const inputElements = screen.getAllByRole('textbox');
-  // Password input doesn't have role="textbox" by default, it's just an input.
-  // However, getByLabelText is better for accessibility.
-  // But the requirement says "renders 2 input elements".
-  // Let's try to find them by label or just tag name if necessary, but testing-library prefers roles.
-  // Email is textbox. Password is not textbox.
-  // Let's check specifically for email and password inputs.
   const emailInput = screen.getByLabelText(/email/i);
   const passwordInput = screen.getByLabelText(/password/i);
   expect(emailInput).toBeInTheDocument();
