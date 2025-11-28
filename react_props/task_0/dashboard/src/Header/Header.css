@@ -1,0 +1,15 @@
+.App-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 3px solid #e1003c;
+  padding-bottom: 20px;
+}
+
+.App-header img {
+  height: 200px;
+}
+
+.App-header h1 {
+  color: #e1003c;
+  margin-left: 20px;
+}
