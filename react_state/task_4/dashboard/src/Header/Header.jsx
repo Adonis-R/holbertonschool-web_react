@@ -1,53 +1,60 @@
 import { Component } from 'react';
-import { StyleSheet, css } from 'aphrodite';
 import logo from '../assets/holberton-logo.jpg';
-import newContext from '../Context/context';
+import AppContext from '../Context/context';
 
-const styles = StyleSheet.create({
-  header: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  logo: {
-    height: '30vmin',
-    pointerEvents: 'none'
-  },
-  h1: {
-    color: '#e1003c',
-    fontFamily: 'Roboto, sans-serif',
-    fontWeight: 'bold',
-    fontSize: '2.5rem',
-    margin: 0
-  },
-  logoutSection: {
-    fontFamily: 'Roboto, sans-serif',
-    fontSize: '1.2rem',
-    marginLeft: 'auto',
-    cursor: 'pointer'
-  }
-});
 
-class Header extends Component {
-  static contextType = newContext;
+export default class Header extends Component {
+  static contextType = AppContext;
 
   render() {
     const { user, logOut } = this.context;
 
     return (
       <>
-        <div className={css(styles.header)}>
-          <img src={logo} className={css(styles.logo)} alt="holberton logo" />
-          <h1 className={css(styles.h1)}>School Dashboard</h1>
+        <div className="
+          App-header
+          flex
+          items-center
+          py-2
+          max-[520px]:flex-col
+          max-[520px]:justify-center
+          max-[520px]:text-center
+          gap-4
+          max-[520px]:gap-2
+        ">
+          <img
+            src={logo}
+            className="
+              App-logo
+              h-60
+              pointer-events-none
+              max-[520px]:h-60
+              max-[435px]:h-48
+            "
+            alt="holberton logo"
+          />
+
+          <h1 className="
+            font-bold
+            text-[color:var(--main-color)]
+            text-5xl
+            max-[520px]:text-5xl
+            max-[520px]:mt-2
+            max-[435px]:text-4xl
+            max-[380px]:text-3xl
+          ">
+            School dashboard
+          </h1>
         </div>
+
         {user.isLoggedIn && (
-          <section id="logoutSection" className={css(styles.logoutSection)}>
-            Welcome {user.email} (<a href='#' onClick={logOut}>(logout)</a>)
+          <section id="logoutSection">
+            Welcome {user.email} (
+            <a href="#" onClick={logOut}>logout</a>
+            )
           </section>
         )}
       </>
     );
   }
 }
-
-export default Header;

@@ -1,96 +1,125 @@
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, fireEvent, screen } from '@testing-library/react';
 import App from './App';
 
-test('The App component renders without crashing', () => {
-  render(<App />);
-});
-
-test('The App component renders Login when user is not logged in (default state)', () => {
-  render(<App />);
-
-  const emailLabelElement = screen.getByLabelText(/email/i);
-  const passwordLabelElement = screen.getByLabelText(/password/i);
-  const buttonElements = screen.getAllByRole('button', { name: /ok/i })
-
-  expect(emailLabelElement).toBeInTheDocument()
-  expect(passwordLabelElement).toBeInTheDocument()
-  expect(buttonElements.length).toBeGreaterThanOrEqual(1)
-});
-
-test('CourseList is not displayed when user is not logged in', () => {
-  render(<App />);
-
-  const tableElement = screen.queryByRole('table');
-
-  expect(tableElement).not.toBeInTheDocument();
-});
-
-test('when user logs in, CourseList is displayed and Login is not displayed', async () => {
-  const user = userEvent.setup();
-  render(<App />);
-
-  const emailInput = screen.getByLabelText(/email/i);
-  const passwordInput = screen.getByLabelText(/password/i);
-  const submitButton = screen.getByRole('button', { name: /ok/i });
-
-  await user.type(emailInput, 'test@example.com');
-  await user.type(passwordInput, 'password123');
-
-  await waitFor(() => {
-    expect(submitButton).toBeEnabled();
+describe('App login / logout state behavior', () => {
+  test('The App component renders without crashing', () => {
+    render(<App />);
   });
 
-  await user.click(submitButton);
+  test('By default, Login is displayed and CourseList is NOT displayed', () => {
+    render(<App />);
 
-  await waitFor(() => {
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+    expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  test('After login, CourseList is displayed', () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
+
     const tableElement = screen.getByRole('table');
     expect(tableElement).toBeInTheDocument();
   });
 
-  const loginForm = screen.queryByLabelText(/email/i);
-  expect(loginForm).not.toBeInTheDocument();
-});
+  test('After logout, CourseList is hidden and Login is displayed again', () => {
+    render(<App />);
 
-test('it should display an alert and log out when ctrl+h is pressed', () => {
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
 
-  render(<App />);
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
 
-  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
 
-  expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+    fireEvent.click(screen.getByText(/logout/i));
 
-  alertSpy.mockRestore();
-});
-
-test('it should display "News from the School" title and paragraph by default', () => {
-  render(<App />);
-
-  const newsTitle = screen.getByRole('heading', { name: /news from the school/i });
-  const newsParagraph = screen.getByText(/holberton school news goes here/i);
-
-  expect(newsTitle).toBeInTheDocument();
-  expect(newsParagraph).toBeInTheDocument();
-});
-
-test('clicking on a notification item removes it from the list and logs to console', async () => {
-  const user = userEvent.setup();
-  const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-  render(<App />);
-
-  const notificationItems = screen.getAllByRole('listitem');
-  const initialCount = notificationItems.length;
-
-  await user.click(notificationItems[0]);
-
-  expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
-
-  await waitFor(() => {
-    const updatedItems = screen.queryAllByRole('listitem');
-    expect(updatedItems.length).toBe(initialCount - 1);
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
   });
 
-  consoleSpy.mockRestore();
+  test('Ctrl + h logs out the user and shows alert', () => {
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    render(<App />);
+
+    // Login first
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
+
+    // Trigger Ctrl + h
+    fireEvent.keyDown(document, {
+      ctrlKey: true,
+      key: 'h',
+    });
+
+    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+    expect(screen.queryByText(/logout/i)).toBeNull();
+
+    alertSpy.mockRestore();
+  });
+
+  test('it should display "News from the School" title and paragraph by default', () => {
+    render(<App />);
+
+    const newsTitle = screen.getByRole('heading', {
+      name: /news from the school/i,
+    });
+
+    const newsParagraph = screen.getByText(
+      /holberton school news goes here/i
+    );
+
+    expect(newsTitle).toBeInTheDocument();
+    expect(newsParagraph).toBeInTheDocument();
+  });
+
+  // ✅ NOUVEAU TEST : Notifications
+  test('Clicking on a notification removes it and logs the correct message', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    render(<App />);
+
+    // Ouvre le panneau de notifications
+    fireEvent.click(screen.getByText(/your notifications/i));
+
+    // Vérifie qu'une notification est présente
+    const notification = screen.getByText(/new course available/i);
+    expect(notification).toBeInTheDocument();
+
+    // Clique sur la notification
+    fireEvent.click(notification);
+
+    // La notification doit être supprimée
+    expect(screen.queryByText(/new course available/i)).toBeNull();
+
+    // Le bon log doit être envoyé
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Notification 1 has been marked as read'
+    );
+
+    consoleSpy.mockRestore();
+  });
 });

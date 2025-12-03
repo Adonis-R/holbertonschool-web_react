@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { StyleSheet, css } from 'aphrodite';
 import Notifications from '../Notifications/Notifications';
 import Footer from '../Footer/Footer';
 import Header from '../Header/Header';
@@ -22,127 +21,143 @@ const coursesList = [
   { id: 3, name: 'React', credit: 40 }
 ];
 
-const styles = StyleSheet.create({
-  app: {
-    position: 'relative'
-  }
-});
-
-class App extends Component {
+export default class App extends Component {
+  static contextType = newContext;
 
   constructor(props) {
     super(props);
+
     this.state = {
-      displayDrawer: true,
-      user: {
-        email: '',
-        password: '',
-        isLoggedIn: false
-      },
-      logOut: this.logOut,
+      displayDrawer: false,
+      user: this.context
+        ? this.context.user
+        : { email: '', password: '', isLoggedIn: false },
+      logOut: this.context ? this.context.logOut : () => {},
+
+      // ✅ NOUVEL ÉTAT DEMANDÉ
       notifications: notificationsList,
-      courses: coursesList
-    }
+      courses: coursesList,
+    };
   }
 
+  // ✅ NOUVELLE MÉTHODE
+  markNotificationAsRead = (id) => {
+    console.log(`Notification ${id} has been marked as read`);
+
+    this.setState((prevState) => ({
+      notifications: prevState.notifications.filter(
+        (notification) => notification.id !== id
+      ),
+    }));
+  };
+
+  handleDisplayDrawer = () => {
+    this.setState({ displayDrawer: true });
+  };
+
+  handleHideDrawer = () => {
+    this.setState({ displayDrawer: false });
+  };
+
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeydown)
+    document.addEventListener('keydown', this.handleKeydown);
   }
-  
+
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown)
+    document.removeEventListener('keydown', this.handleKeydown);
   }
 
   handleKeydown = (e) => {
-    if (e.ctrlKey && e.key === "h" ) {
-      alert("Logging you out");
-      if (this.props.logOut) {
-        this.props.logOut();
+    if (e.ctrlKey && e.key === 'h') {
+      alert('Logging you out');
+      if (this.state.logOut) {
+        this.state.logOut();
       }
     }
-  }
-
-  handleDisplayDrawer = () => {
-    this.setState({ displayDrawer: true }, () => {
-      console.log(this.state.displayDrawer);
-    })
-  }
-
-  handleHideDrawer = () => {
-    this.setState({ displayDrawer: false }, () => {
-      console.log(this.state.displayDrawer)
-    })
-  }
+  };
 
   logIn = (email, password) => {
     this.setState({
       user: {
         email,
         password,
-        isLoggedIn: true
-      }
-    })
+        isLoggedIn: true,
+      },
+    });
   };
 
   logOut = () => {
-    this.setState({ 
+    this.setState({
       user: {
         email: '',
         password: '',
         isLoggedIn: false,
-      }
-    })
-  };
-
-  markNotificationAsRead = (id) => {
-    this.setState((prevNotificationsState) => ({
-      notifications: prevNotificationsState.notifications.filter(notification => notification.id !== id)
-    }))
-    console.log(`Notification ${id} has been marked as read`);
+      },
+    });
   };
 
   render() {
-    const { displayDrawer, user, logOut, notifications, courses } = this.state;
-    const { isLoggedIn } = user;
+    const { user, notifications, courses } = this.state;
+    const isLoggedIn = user && user.isLoggedIn;
 
     return (
-      <newContext.Provider value={ { user, logOut } }>
-        <div className={css(styles.app)}>
-          <Notifications 
-            notifications={notifications}
-            handleHideDrawer={this.handleHideDrawer}
+      <div className="
+        relative
+        px-3
+        max-[912px]:px-2
+        max-[520px]:px-2
+        min-h-screen
+        flex
+        flex-col
+      ">
+        {/* Notifications layer */}
+        <div className="absolute top-0 right-0 z-10">
+          <Notifications
+            notifications={notifications}                 // ✅ VIA STATE
+            displayDrawer={this.state.displayDrawer}
             handleDisplayDrawer={this.handleDisplayDrawer}
-            displayDrawer={displayDrawer}
-            markNotificationAsRead={this.markNotificationAsRead}
+            handleHideDrawer={this.handleHideDrawer}
+            markNotificationAsRead={this.markNotificationAsRead} // ✅ MÉTHODE PASSÉE
           />
-          <>
-            <Header />
-            {
-              !isLoggedIn ? (
-                <BodySectionWithMarginBottom title='Log in to continue'>
-                  <Login 
-                    logIn={this.logIn}
-                    email={user.email}
-                    password={user.password}
-                  />
-                </BodySectionWithMarginBottom>
-              ) : (
-                <BodySectionWithMarginBottom title='Course list'>
-                  <CourseList courses={courses} />
-                </BodySectionWithMarginBottom>
-              )
-            }
-            <BodySection title="News from the School">
-              <p>
-                Holberton School news goes here
-              </p>
-            </BodySection>
-          </>
-          <Footer />
         </div>
-      </newContext.Provider>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
+          <Header />
+
+          {!isLoggedIn ? (
+            <BodySectionWithMarginBottom title="Log in to continue">
+              <Login
+                logIn={this.logIn}
+                email={user.email}
+                password={user.password}
+              />
+            </BodySectionWithMarginBottom>
+          ) : (
+            <BodySectionWithMarginBottom title="Course list">
+              <CourseList courses={courses} /> {/* ✅ VIA STATE */}
+            </BodySectionWithMarginBottom>
+          )}
+
+          <BodySection title="News from the School">
+            <p className="
+              max-w-full
+              break-words
+              text-base
+              max-[520px]:text-sm
+              leading-relaxed
+            ">
+              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Similique, asperiores architecto blanditiis fuga doloribus sit
+              illum aliquid ea distinctio minus accusantium, impedit quo
+              voluptatibus ut magni dicta. Recusandae, quia dicta?
+            </p>
+          </BodySection>
+        </div>
+
+        {/* Footer always at the bottom */}
+        <Footer />
+      </div>
     );
   }
 }
-
-export default App;

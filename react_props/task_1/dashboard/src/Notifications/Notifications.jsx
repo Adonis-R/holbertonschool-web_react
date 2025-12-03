@@ -1,24 +1,34 @@
-import React from 'react';
-import './Notifications.css';
-import closeIcon from '../assets/close-icon.png';
-import { getLatestNotification } from '../utils/utils';
+import './Notifications.css'
+import closeButton from "../assets/close-button.png";
+import { getLatestNotification } from "../utils/utils";
 
-export default function Notifications() {
-  return (
-    <div className="Notifications">
-      <button
-        style={{ color: '#3a3a3a', fontWeight: 'bold', background: 'none', border: 'none', fontSize: '15px', position: 'absolute', right: '2px', top: '2px', cursor: 'pointer' }}
-        aria-label="Close"
-        onClick={() => console.log('Close button has been clicked')}
-      >
-        <img src={closeIcon} alt="closeIcon" width="10px" />
-      </button>
-      <p>Here is the list of notifications</p>
-      <ul>
-        <li data-priority="default">New course available</li>
-        <li data-priority="urgent">New resume available</li>
-        <li data-priority="urgent" dangerouslySetInnerHTML={{ __html: getLatestNotification() }}></li>
-      </ul>
-    </div>
-  );
+function Notifications() {
+    return (
+        <div className="notifications">
+            <p>Here is the list of notifications</p>
+
+            <button
+                style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer'
+                }}
+                aria-label="Close"
+                onClick={() => console.log('close button has been clicked')}
+            >
+                <img src={closeButton} alt="close" style={{ width: '15px', height: '15px' }} />
+            </button>
+
+            <ul>
+                <li data-priority="default" >New course available</li>
+                <li data-priority="urgent" >New resume available</li>
+                <li dangerouslySetInnerHTML={{ __html: getLatestNotification() }}></li>
+            </ul>
+        </div>
+    )
 }
+
+export default Notifications

@@ -1,36 +1,47 @@
 import { useContext } from 'react';
-import { StyleSheet, css } from 'aphrodite';
 import { getCurrentYear, getFooterCopy } from '../utils/utils';
-import newContext from '../Context/context';
-
-const styles = StyleSheet.create({
-  footer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTop: '5px red solid',
-    gap: '10px'
-  },
-  p: {
-    fontFamily: 'Roboto, sans-serif',
-    fontStyle: 'italic',
-    fontSize: '1.3rem',
-    padding: '0 3px',
-    margin: 0
-  }
-});
+import AppContext from '../Context/context';
 
 export default function Footer() {
-  const { user } = useContext(newContext);
-  
+  const { user, logOut } = useContext(AppContext);
+
   return (
-    <div className={css(styles.footer)}>
-      <p className={css(styles.p)}>Copyright {getCurrentYear()} - {getFooterCopy(true)}</p>
-      {user.isLoggedIn && (
-        <span className={css(styles.p)}>
-          <a href="#">Contact us</a>
-        </span>
+    <div className="
+      App-footer
+      flex
+      flex-col
+      justify-center
+      items-center
+      border-t-4
+      border-[color:var(--main-color)]
+      w-full
+      mt-auto
+      py-2
+      max-[520px]:py-3
+      px-2
+    ">
+      <p className="
+        italic
+        text-xl
+        p-1
+        text-center
+        max-[520px]:text-lg
+        max-[520px]:p-0
+        max-[450px]:text-[16px]
+        max-[375px]:text-[15px]
+        leading-tight
+      ">
+        Copyright {getCurrentYear()} - {getFooterCopy(false)}
+      </p>
+
+      {user && user.isLoggedIn && (
+        <p className="mt-1">
+          Welcome {user.email} (
+          <a href="#" onClick={logOut} className="underline">
+            logout
+          </a>
+          )
+        </p>
       )}
     </div>
   );

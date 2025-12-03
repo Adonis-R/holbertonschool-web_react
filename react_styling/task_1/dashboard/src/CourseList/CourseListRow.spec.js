@@ -1,46 +1,88 @@
-import { render, screen, within } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import CourseListRow from './CourseListRow';
 
-test('it should display 1 "th" element with colspan=2 when isHeader is true and textSecondCell is null', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell={null} />
-      </tbody>
-    </table>
-  )
 
-  const thElement = screen.getByRole('columnheader');
+test('When textSecondCell is null, renders one column header with colspan = 2', () => {
+    const { container } = render(
+        <table>
+            <tbody>
+                <CourseListRow
+                    isHeader={true}
+                    textFirstCell="Available courses"
+                    textSecondCell={null}
+                />
+            </tbody>
+        </table>
+    );
 
-  expect(thElement).toHaveAttribute('colSpan', '2');
+    const th = container.querySelector('th');
+    expect(th).toBeInTheDocument();
+    expect(th).toHaveAttribute('colSpan', '2');
+    expect(th).toHaveTextContent('Available courses');
+
+    const allTh = container.querySelectorAll('th');
+    expect(allTh).toHaveLength(1);
 });
 
-test('it should display 2 "th" elements when isHeader is true and textSecondCell is not null', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={true} textFirstCell="First" textSecondCell="Second" />
-      </tbody>
-    </table>
-  )
+test('When textSecondCell is not null, renders 2 th cells', () => {
+    const { container } = render(
+        <table>
+            <tbody>
+                <CourseListRow
+                    isHeader={true}
+                    textFirstCell="Course name"
+                    textSecondCell="Credit"
+                />
+            </tbody>
+        </table>
+    );
 
-  const thElements = screen.getAllByRole('columnheader');
-
-  expect(thElements).toHaveLength(2);
+    const allTh = container.querySelectorAll('th');
+    expect(allTh).toHaveLength(2);
+    expect(allTh[0]).toHaveTextContent('Course name');
+    expect(allTh[1]).toHaveTextContent('Credit');
 });
 
-test('it should render 2 "td" elements inside a "tr" element when isHeader is false', () => {
-  render(
-    <table>
-      <tbody>
-        <CourseListRow isHeader={false} textFirstCell="Data1" textSecondCell="Data2" />
-      </tbody>
-    </table>
-  )
+test('renders correctly two td elements within a tr element', () => {
+    const { container } = render(
+        <table>
+            <tbody>
+                <CourseListRow
+                    isHeader={false}
+                    textFirstCell="ES6"
+                    textSecondCell="60"
+                />
+            </tbody>
+        </table>
+    );
 
-  const trElement = screen.getByRole('row');
-  const tdElements = within(trElement).getAllByRole('cell');
+    const tr = container.querySelector('tr');
+    expect(tr).toBeInTheDocument();
 
-  expect(trElement).toBeInTheDocument();
-  expect(tdElements).toHaveLength(2);
+    const allTd = container.querySelectorAll('td');
+    expect(allTd).toHaveLength(2);
+    expect(allTd[0]).toHaveTextContent('ES6');
+    expect(allTd[1]).toHaveTextContent('60');
+
+    expect(tr).toContainElement(allTd[0]);
+    expect(tr).toContainElement(allTd[1]);
+});
+
+test('header row has background color #deb5b545', () => {
+render(<table><tbody><CourseListRow isHeader={true} textFirstCell="Header" /></tbody></table>);
+const row = screen.getByRole('row');
+expect(row).toHaveStyle({ backgroundColor: 'rgb(222, 181, 181, 0.27)' });
+});
+
+test('header row with second cell has background color #deb5b545', () => {
+render(<table><tbody><CourseListRow isHeader={true} textFirstCell="Header1" textSecondCell="Header2" /></tbody></table>);
+const row = screen.getByRole('row');
+expect(row).toHaveStyle({ backgroundColor: 'rgb(222, 181, 181, 0.27)' });
+});
+
+test('regular row has background color #f5f5f5ab', () => {
+render(<table><tbody><CourseListRow isHeader={false} textFirstCell="Cell1" textSecondCell="Cell2" /></tbody></table>);
+const row = screen.getByRole('row');
+expect(row).toHaveStyle({ backgroundColor: 'rgb(245, 245, 245, 0.67)' });
 });

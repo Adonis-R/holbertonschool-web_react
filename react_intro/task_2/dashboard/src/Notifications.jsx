@@ -3,22 +3,31 @@ import './Notifications.css';
 import closeIcon from './assets/close-icon.png';
 import { getLatestNotification } from './utils';
 
-export default function Notifications() {
+function Notifications() {
   return (
-    <div className="Notifications">
+    <div className="notifications">
       <button
-        style={{ color: '#3a3a3a', fontWeight: 'bold', background: 'none', border: 'none', fontSize: '15px', position: 'absolute', right: '2px', top: '2px', cursor: 'pointer' }}
+        style={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+        }}
         aria-label="Close"
         onClick={() => console.log('Close button has been clicked')}
       >
-        <img src={closeIcon} alt="closeIcon" width="10px" />
+        <img src={closeIcon} alt="close icon" style={{ width: 15, height: 15 }} />
       </button>
       <p>Here is the list of notifications</p>
       <ul>
         <li data-priority="default">New course available</li>
         <li data-priority="urgent">New resume available</li>
-        <li data-priority="urgent" dangerouslySetInnerHTML={{ __html: getLatestNotification() }}></li>
+        <li dangerouslySetInnerHTML={{ __html: getLatestNotification() }} />
       </ul>
     </div>
   );
 }
+
+export default Notifications;

@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { StyleSheet, css } from 'aphrodite';
 import Notifications from '../Notifications/Notifications';
 import Footer from '../Footer/Footer';
 import Header from '../Header/Header';
@@ -8,12 +7,6 @@ import CourseList from '../CourseList/CourseList';
 import { getLatestNotification } from '../utils/utils';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import BodySection from '../BodySection/BodySection';
-
-const styles = StyleSheet.create({
-  app: {
-    position: 'relative'
-  }
-});
 
 const notificationsList = [
   { id: 1, type: 'default', value: 'New course available' },
@@ -27,32 +20,30 @@ const coursesList = [
   { id: 3, name: 'React', credit: 40 }
 ];
 
-class App extends Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      displayDrawer: true
-    }
+      displayDrawer : false,
+    };
   }
+
+  handleDisplayDrawer = () => {
+  this.setState({ displayDrawer: true });
+  }
+
+  handleHideDrawer = () => {
+    this.setState({ displayDrawer: false });
+  }
+
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeydown);
   }
-
+  
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeydown);
-  }
-
-  handleDisplayDrawer = () => {
-    this.setState({ displayDrawer: true }, () => {
-      console.log(this.state.displayDrawer);
-    });
-  }
-
-  handleHideDrawer = () => {
-    this.setState({ displayDrawer: false }, () => {
-      console.log(this.state.displayDrawer)
-    });
   }
 
   handleKeydown = (e) => {
@@ -67,17 +58,30 @@ class App extends Component {
   render() {
     const { isLoggedIn = true, logOut = () => {} } = this.props;
 
-
     return (
-      <div className={css(styles.app)}>
-        <Notifications 
-          notifications={notificationsList}
-          handleHideDrawer={this.handleHideDrawer}
-          handleDisplayDrawer={this.handleDisplayDrawer}
-          displayDrawer={this.state.displayDrawer}
-        />
-        <div>
+      <div className="
+        relative
+        px-3
+        max-[912px]:px-2
+        max-[520px]:px-2
+        min-h-screen
+        flex
+        flex-col
+      ">
+        {/* Notifications layer */}
+        <div className="absolute top-0 right-0 z-10">
+          <Notifications
+            notifications={notificationsList}
+            displayDrawer={this.state.displayDrawer}
+            handleDisplayDrawer={this.handleDisplayDrawer}
+            handleHideDrawer={this.handleHideDrawer}
+          />
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
           <Header />
+
           {
             !isLoggedIn ? (
               <BodySectionWithMarginBottom title='Log in to continue'>
@@ -89,16 +93,26 @@ class App extends Component {
               </BodySectionWithMarginBottom>
             )
           }
+
           <BodySection title="News from the School">
-            <p>
-              Holberton School news goes here
+            <p className="
+              max-w-full
+              break-words
+              text-base
+              max-[520px]:text-sm
+              leading-relaxed
+            ">
+              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Similique, asperiores architecto blanditiis fuga doloribus sit
+              illum aliquid ea distinctio minus accusantium, impedit quo
+              voluptatibus ut magni dicta. Recusandae, quia dicta?
             </p>
           </BodySection>
         </div>
+
+        {/* Footer always at the bottom */}
         <Footer />
       </div>
     );
   }
 }
-
-export default App;

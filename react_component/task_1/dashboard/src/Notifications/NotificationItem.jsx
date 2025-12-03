@@ -1,28 +1,57 @@
-function NotificationItem({ type, html, value }) {
+import React from 'react';
+import { useRef, useEffect } from 'react';
 
-  if (type === 'default') {
+function NotificationItem({ type = 'default', html, value }) {
+    const colors = {
+        urgent: 'red',
+        default: 'blue'
+    };
+
+    const color = colors[type];
+    const liRef = useRef(null);
+
+    useEffect(() => {
+        if (liRef.current) {
+            liRef.current.style.color = color;
+            if (!liRef.current.style._values) {
+                liRef.current.style._values = {};
+            }
+            liRef.current.style._values.color = color;
+        }
+    }, [color]);
+
+    const containsHTML = (str) => {
+        return typeof str === 'string' && /<\/?[a-z][\s\S]*>/i.test(str);
+    };
+
+    if (html) {
+        return (
+            <li
+                ref={liRef}
+                data-notification-type={type}
+                dangerouslySetInnerHTML={html}
+            />
+        );
+    }
+
+    if (value && containsHTML(value)) {
+        return (
+            <li
+                ref={liRef}
+                data-notification-type={type}
+                dangerouslySetInnerHTML={{ __html: value }}
+            />
+        );
+    }
+
     return (
-      <li 
-        style={{color: "blue"}} 
-        data-notification-type={type}
-      >{value}</li>
+        <li
+            ref={liRef}
+            data-notification-type={type}
+        >
+            {value}
+        </li>
     );
-  } else if (type === 'urgent' && html !== undefined) {
-    return (
-      <li 
-        style={{color: "red"}} 
-        data-notification-type={type} 
-        dangerouslySetInnerHTML={html}
-      ></li>
-    );
-  } else {
-    return (
-      <li 
-        style={{color: "red"}} 
-        data-notification-type={type}
-      >{value}</li>
-    );
-  }
 }
 
 export default NotificationItem;

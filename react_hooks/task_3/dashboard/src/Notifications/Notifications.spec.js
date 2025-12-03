@@ -39,13 +39,11 @@ describe("Notifications component", () => {
 
   test("logs message when close button is clicked", () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    const handleHideDrawerMock = jest.fn();
     const props = {
       notifications: [
         { id: 1, type: "default", value: "New course available" },
       ],
       displayDrawer: true,
-      handleHideDrawer: handleHideDrawerMock,
     };
 
     render(<Notifications {...props} />);
@@ -54,7 +52,9 @@ describe("Notifications component", () => {
 
     fireEvent.click(buttonElement);
 
-    expect(handleHideDrawerMock).toHaveBeenCalledTimes(1);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/close button has been clicked/i)
+    );
 
     consoleSpy.mockRestore();
   });
@@ -97,14 +97,14 @@ describe("Notifications component", () => {
     expect(notificationsListItems).toHaveLength(0);
   });
 
-  test('it should display a paragraph of "No new notifications for now" whenever the listNotification prop is empty', () => {
+  test('it should display a paragraph of "No new notification for now" whenever the listNotification prop is empty', () => {
     const props = {
       notifications: [],
       displayDrawer: true,
     };
     render(<Notifications {...props} />);
 
-    const notificationsTitle = screen.getByText(/no new notifications for now/i);
+    const notificationsTitle = screen.getByText(/no new notification for now/i);
     const notificationsListItems = screen.queryAllByRole("listitem");
 
     expect(notificationsListItems).toHaveLength(0);
@@ -154,8 +154,8 @@ describe("Notifications component", () => {
     expect(listItems).toHaveLength(3);
   });
 
-  test("it should call markNotificationAsRead when a notification item is clicked", () => {
-    const markNotificationAsReadMock = jest.fn();
+  test("it should log 'Notification {id} has been marked as read' when a notification item is clicked", () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     const props = {
       notifications: [
         { id: 1, type: "default", value: "New course available" },
@@ -163,7 +163,6 @@ describe("Notifications component", () => {
         { id: 3, type: "urgent", html: { __html: getLatestNotification() } },
       ],
       displayDrawer: true,
-      markNotificationAsRead: markNotificationAsReadMock,
     };
 
     render(<Notifications {...props} />);
@@ -171,20 +170,22 @@ describe("Notifications component", () => {
     const listItems = screen.getAllByRole("listitem");
 
     fireEvent.click(listItems[0]);
-    expect(markNotificationAsReadMock).toHaveBeenCalledWith(1);
+    expect(consoleSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
 
-    markNotificationAsReadMock.mockClear();
+    consoleSpy.mockClear();
 
     fireEvent.click(listItems[1]);
-    expect(markNotificationAsReadMock).toHaveBeenCalledWith(2);
+    expect(consoleSpy).toHaveBeenCalledWith('Notification 2 has been marked as read');
 
-    markNotificationAsReadMock.mockClear();
+    consoleSpy.mockClear();
 
     fireEvent.click(listItems[2]);
-    expect(markNotificationAsReadMock).toHaveBeenCalledWith(3);
+    expect(consoleSpy).toHaveBeenCalledWith('Notification 3 has been marked as read');
+
+    consoleSpy.mockRestore();
   });
 
-  test('should update when the notifications length changes', () => {
+  test('should rerender when the notifications length changes', () => {
     const initialNotifications = [
       { id: 1, type: 'default', value: 'Notification 1' },
     ];
@@ -194,64 +195,33 @@ describe("Notifications component", () => {
       { id: 2, type: 'urgent', value: 'Notification 2' },
     ];
 
+    const renderSpy = jest.spyOn(Notifications.prototype, 'render');
+
     const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const listItems = screen.getAllByRole('listitem');
-    expect(listItems).toHaveLength(1);
+    expect(renderSpy).toHaveBeenCalledTimes(1);
 
     rerender(<Notifications notifications={newNotifications} displayDrawer={true} />);
 
-    const updatedListItems = screen.getAllByRole('listitem');
-    expect(updatedListItems).toHaveLength(2);
+    expect(renderSpy).toHaveBeenCalledTimes(2);
+    renderSpy.mockRestore();
   });
 
-  test('should maintain same content when notifications are unchanged', () => {
+  test('should not rerender if the notifications length is unchanged', () => {
     const initialNotifications = [
       { id: 1, type: 'default', value: 'Notification 1' },
       { id: 2, type: 'urgent', value: 'Notification 2' },
     ];
 
+    const renderSpy = jest.spyOn(Notifications.prototype, 'render');
+
     const { rerender } = render(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const firstListItems = screen.getAllByRole('listitem');
-    expect(firstListItems).toHaveLength(2);
+    expect(renderSpy).toHaveBeenCalledTimes(1);
 
     rerender(<Notifications notifications={initialNotifications} displayDrawer={true} />);
 
-    const secondListItems = screen.getAllByRole('listitem');
-    expect(secondListItems).toHaveLength(2);
-    expect(secondListItems[0].textContent).toBe(firstListItems[0].textContent);
-  });
-
-  test('should call handleDisplayDrawer when "Your notifications" is clicked', () => {
-    const handleDisplayDrawerMock = jest.fn();
-    const props = {
-      notifications: [],
-      displayDrawer: false,
-      handleDisplayDrawer: handleDisplayDrawerMock,
-    };
-
-    render(<Notifications {...props} />);
-
-    const notificationTitle = screen.getByText('Your notifications');
-    fireEvent.click(notificationTitle);
-
-    expect(handleDisplayDrawerMock).toHaveBeenCalledTimes(1);
-  });
-
-  test('should call handleHideDrawer when close button is clicked', () => {
-    const handleHideDrawerMock = jest.fn();
-    const props = {
-      notifications: [{ id: 1, type: 'default', value: 'Test notification' }],
-      displayDrawer: true,
-      handleHideDrawer: handleHideDrawerMock,
-    };
-
-    render(<Notifications {...props} />);
-
-    const closeButton = screen.getByRole('button', { name: /close/i });
-    fireEvent.click(closeButton);
-
-    expect(handleHideDrawerMock).toHaveBeenCalledTimes(1);
+    expect(renderSpy).toHaveBeenCalledTimes(1);
+    renderSpy.mockRestore();
   });
 });

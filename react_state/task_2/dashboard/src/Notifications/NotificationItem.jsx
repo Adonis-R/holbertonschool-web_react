@@ -1,54 +1,50 @@
-import { PureComponent } from 'react';
-import { StyleSheet, css } from 'aphrodite';
+import React, { PureComponent } from 'react';
 
-const styles = StyleSheet.create({
-  default: {
-    color: 'blue',
-    '@media (max-width: 900px)': {
-      width: '100%',
-      borderBottom: '1px solid black',
-      fontSize: '20px',
-      padding: '10px 8px',
-      listStyle: 'none'
-    }
-  },
-  urgent: {
-    color: 'red',
-    '@media (max-width: 900px)': {
-      width: '100%',
-      borderBottom: '1px solid black',
-      fontSize: '20px',
-      padding: '10px 8px',
-      listStyle: 'none'
-    }
-  }
-});
-
-class NotificationItem extends PureComponent {
-
+export default class NotificationItem extends PureComponent {
   render() {
     const { type, html, value, markAsRead, id } = this.props;
-    const itemStyle = type === 'default' ? styles.default : styles.urgent;
 
-    if (html !== undefined) {
+    const baseClasses = `
+      pl-1
+      max-[912px]:w-full
+      max-[912px]:border-b
+      max-[912px]:border-black
+      max-[912px]:p-[12px]
+      max-[912px]:text-[20px]
+      max-[912px]:leading-relaxed
+    `;
+
+    if (type === 'default') {
       return (
         <li
-          className={css(itemStyle)}
+          className={`text-[color:var(--default-notification-item)] ${baseClasses}`}
+          data-notification-type={type}
+          onClick={() => markAsRead(id)}
+        >
+          {value}
+        </li>
+      );
+    }
+
+    if (type === 'urgent' && html !== undefined) {
+      return (
+        <li
+          className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
           data-notification-type={type}
           dangerouslySetInnerHTML={html}
           onClick={() => markAsRead(id)}
         ></li>
       );
-    } else {
-      return (
-        <li
-          className={css(itemStyle)}
-          data-notification-type={type}
-          onClick={() => markAsRead(id)}
-        >{value}</li>
-      );
     }
+
+    return (
+      <li
+        className={`text-[color:var(--urgent-notification-item)] ${baseClasses}`}
+        data-notification-type={type}
+        onClick={() => markAsRead(id)}
+      >
+        {value}
+      </li>
+    );
   }
 }
-
-export default NotificationItem;

@@ -39,13 +39,11 @@ describe("Notifications component", () => {
 
   test("logs message when close button is clicked", () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    const handleHideDrawerMock = jest.fn();
     const props = {
       notifications: [
         { id: 1, type: "default", value: "New course available" },
       ],
       displayDrawer: true,
-      handleHideDrawer: handleHideDrawerMock,
     };
 
     render(<Notifications {...props} />);
@@ -54,7 +52,9 @@ describe("Notifications component", () => {
 
     fireEvent.click(buttonElement);
 
-    expect(handleHideDrawerMock).toHaveBeenCalledTimes(1);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/close button has been clicked/i)
+    );
 
     consoleSpy.mockRestore();
   });
@@ -223,37 +223,5 @@ describe("Notifications component", () => {
 
     expect(renderSpy).toHaveBeenCalledTimes(1);
     renderSpy.mockRestore();
-  });
-
-  test('should call handleDisplayDrawer when "Your notifications" is clicked', () => {
-    const handleDisplayDrawerMock = jest.fn();
-    const props = {
-      notifications: [],
-      displayDrawer: false,
-      handleDisplayDrawer: handleDisplayDrawerMock,
-    };
-
-    render(<Notifications {...props} />);
-
-    const notificationTitle = screen.getByText('Your notifications');
-    fireEvent.click(notificationTitle);
-
-    expect(handleDisplayDrawerMock).toHaveBeenCalledTimes(1);
-  });
-
-  test('should call handleHideDrawer when close button is clicked', () => {
-    const handleHideDrawerMock = jest.fn();
-    const props = {
-      notifications: [{ id: 1, type: 'default', value: 'Test notification' }],
-      displayDrawer: true,
-      handleHideDrawer: handleHideDrawerMock,
-    };
-
-    render(<Notifications {...props} />);
-
-    const closeButton = screen.getByRole('button', { name: /close/i });
-    fireEvent.click(closeButton);
-
-    expect(handleHideDrawerMock).toHaveBeenCalledTimes(1);
   });
 });

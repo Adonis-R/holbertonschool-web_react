@@ -1,56 +1,47 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders School Dashboard heading', () => {
-  render(<App />);
-  const headingElement = screen.getByRole('heading', { name: /school dashboard/i });
-  expect(headingElement).toBeInTheDocument();
-});
+describe('App', () => {
+  test('renders h1 element with text School dashboard', () => {
+    render(<App />);
+    const heading = screen.getByRole('heading', { name: /school dashboard/i });
+    expect(heading).toBeInTheDocument();
+  });
 
-test('renders login text', () => {
-  render(<App />);
-  const loginText = screen.getByText(/login to access the full dashboard/i);
-  expect(loginText).toBeInTheDocument();
-});
+  test('renders correct text in App-body and App-footer', () => {
+    render(<App />);
+    const bodyText = screen.getByText(/login to access the full dashboard/i);
+    expect(bodyText).toBeInTheDocument();
+    const footerText = screen.getByText(/copyright \d{4} - holberton school/i);
+    expect(footerText).toBeInTheDocument();
+  });
 
-test('renders footer copyright text', () => {
-  render(<App />);
-  const footerText = screen.getByText(/copyright/i);
-  expect(footerText).toBeInTheDocument();
-});
+  test('renders the holberton logo image', () => {
+    render(<App />);
+    const logo = screen.getByAltText(/holberton logo/i);
+    expect(logo).toBeInTheDocument();
+  });
 
-test('renders holberton logo', () => {
-  render(<App />);
-  const logoElement = screen.getByAltText(/holberton logo/i);
-  expect(logoElement).toBeInTheDocument();
-});
+  test('renders 2 input elements', () => {
+    render(<App />);
+    const inputs = screen.getAllByRole('textbox');
+    // Email input is type="email", password input is type="password" (not textbox role)
+    // So we check for both textbox and password input
+    const passwordInputs = screen.getAllByLabelText(/password/i);
+    expect(inputs.length + passwordInputs.length).toBe(2);
+  });
 
-test('renders 2 input elements', () => {
-  render(<App />);
-  const emailInput = screen.getByLabelText(/email/i);
-  const passwordInput = screen.getByLabelText(/password/i);
-  expect(emailInput).toBeInTheDocument();
-  expect(passwordInput).toBeInTheDocument();
-  
-  // To strictly follow "renders 2 input elements", we might want to count them.
-  // But password input is tricky with getAllByRole('textbox').
-  // Let's use container query if needed, or just verify existence as above.
-  // The prompt asks: "Check whether the App component renders 2 input elements"
-  // I'll stick to checking existence of both for now, which implies 2 inputs.
-});
+  test('renders 2 label elements with text Email and Password', () => {
+    render(<App />);
+    const emailLabel = screen.getByLabelText(/email/i);
+    const passwordLabel = screen.getByLabelText(/password/i);
+    expect(emailLabel).toBeInTheDocument();
+    expect(passwordLabel).toBeInTheDocument();
+  });
 
-test('renders 2 label elements', () => {
-  render(<App />);
-  const emailLabel = screen.getByText(/email/i);
-  const passwordLabel = screen.getByText(/password/i);
-  expect(emailLabel).toBeInTheDocument();
-  expect(passwordLabel).toBeInTheDocument();
-  expect(emailLabel.tagName).toBe('LABEL');
-  expect(passwordLabel.tagName).toBe('LABEL');
-});
-
-test('renders a button with the text OK', () => {
-  render(<App />);
-  const buttonElement = screen.getByRole('button', { name: /ok/i });
-  expect(buttonElement).toBeInTheDocument();
+  test('renders a button with text OK', () => {
+    render(<App />);
+    const button = screen.getByRole('button', { name: /ok/i });
+    expect(button).toBeInTheDocument();
+  });
 });

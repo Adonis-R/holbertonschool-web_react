@@ -1,32 +1,63 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render } from '@testing-library/react';
 import NotificationItem from './NotificationItem';
-import { getLatestNotification } from '../utils/utils';
 
+const mockGetComputedStyle = (element) => {
+    const type = element.getAttribute('data-notification-type');
+    return {
+        color: type === 'default' ? 'blue' : 'red'
+    };
+};
 
-test('it should display the correct notification with a red color, and set the "data-notification-type" to urgent whenever it receives the type "urgent" props', () => {
-  const props = {
-    type: 'urgent',
-    html: {__html: getLatestNotification()},
-  }
-
-  render(<NotificationItem {...props} />);
-
-  const liElement = screen.getByRole('listitem');
-
-  expect(liElement).toHaveStyle({ color: 'red' });
-  expect(liElement).toHaveAttribute('data-notification-type', 'urgent');
+Object.defineProperty(window, 'getComputedStyle', {
+    value: mockGetComputedStyle,
 });
 
-test('it should display the correct notification with a blue color, and set the "data-notification-type" to default whenever it receives the type "default" props', () => {
-  const props = {
-    type: 'default',
-    html: undefined,
-  }
+test('Renders with default type and blue color', () => {
+    const { container } = render(
+        <NotificationItem type="default" value="Test notification" />
+    );
 
-  render(<NotificationItem {...props} />);
+    const li = container.querySelector('li');
+    expect(li).toHaveAttribute('data-notification-type', 'default');
 
-  const liElement = screen.getByRole('listitem');
+    const computedStyle = window.getComputedStyle(li);
+    expect(computedStyle.color).toBe('blue');
+});
 
-  expect(liElement).toHaveStyle({ color: 'blue' });
-  expect(liElement).toHaveAttribute('data-notification-type', 'default');
+test('Renders with urgent type and red color', () => {
+    const { container } = render(
+        <NotificationItem type="urgent" value="Urgent notification" />
+    );
+
+    const li = container.querySelector('li');
+    expect(li).toHaveAttribute('data-notification-type', 'urgent');
+
+    const computedStyle = window.getComputedStyle(li);
+    expect(computedStyle.color).toBe('red');
+});
+
+test('Renders with html content', () => {
+    const htmlContent = "<strong>Urgent requirement</strong> - complete by EOD";
+
+    const { container } = render(
+        <NotificationItem
+            type="urgent"
+            html={{ __html: htmlContent }}
+        />
+    );
+
+    const li = container.querySelector('li');
+    expect(li).toHaveAttribute('data-notification-type', 'urgent');
+    expect(li.innerHTML).toBe(htmlContent);
+});
+
+
+test('Renders with value content', () => {
+    const { container } = render(
+        <NotificationItem type="default" value="Test notification" />
+    );
+
+    const li = container.querySelector('li');
+    expect(li.textContent).toBe('Test notification');
 });

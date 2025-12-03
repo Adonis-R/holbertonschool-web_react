@@ -1,9 +1,3 @@
-# holbertonschool-web_react
+<img height="50" align="right" src="https://raw.githubusercontent.com/fchavonet/fchavonet/main/assets/images/logo-holberton_school.png" alt="Holberton School logo">
 
-* This part of the curriculum will focus on Frontend ReactJS technologies.
-
-## Some Covered technologies
-* TypeScript
-* Javascript
-* ReactJS
-* Redux
+# Task 5

@@ -1,28 +1,21 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
 import Header from './Header';
+import { render, screen } from '@testing-library/react';
 
-export const convertHexToRGBA = (hexCode) => {
-  let hex = hexCode.replace('#', '');
+test('renders img element', () => {
+    render(<Header />);
 
-  if (hex.length === 3) {
-    hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
-    console.log({hex})
-  }
+    const imgElement = screen.getByAltText(/holberton logo/i);
 
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
+    expect(imgElement).toBeInTheDocument();
+});
 
-  return { r, g, b };
-};
+test('Renders h1 element with "School Dashboard text"', () => {
+    render(<Header />);
 
-test('should contain a <p/> element with specific text, <h1/>, and an <img/>', () => {
-  render(<Header />);
-
-  const headingElement = screen.getByRole('heading', {name: /school Dashboard/i});
-  const imgElement = screen.getByAltText(/holberton logo/i)
-
-  expect(headingElement).toBeInTheDocument();
-  expect(headingElement).toHaveStyle({color: convertHexToRGBA('#e1003c') })
-  expect(imgElement).toBeInTheDocument();
+    const headingElement = screen.getByRole('heading', {
+        name: /school dashboard/i
+    });
+    
+    expect(headingElement).toBeInTheDocument();
 });

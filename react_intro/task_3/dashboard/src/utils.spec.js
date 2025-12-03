@@ -1,17 +1,20 @@
 import { getCurrentYear, getFooterCopy, getLatestNotification } from './utils';
 
-test('getCurrentYear returns the current year', () => {
-  expect(getCurrentYear()).toBe(new Date().getFullYear());
-});
+describe('utils', () => {
+  test('getCurrentYear returns the current year', () => {
+    const year = new Date().getFullYear();
+    expect(getCurrentYear()).toBe(year);
+  });
 
-test('getFooterCopy returns the correct string when the argument is true', () => {
-  expect(getFooterCopy(true)).toBe('Holberton School');
-});
+  test('getFooterCopy returns correct string for true', () => {
+    expect(getFooterCopy(true)).toBe('Holberton School');
+  });
 
-test('getFooterCopy returns the correct string when the argument is false', () => {
-  expect(getFooterCopy(false)).toBe('Holberton School main dashboard');
-});
+  test('getFooterCopy returns correct string for false', () => {
+    expect(getFooterCopy(false)).toBe('Holberton School main dashboard');
+  });
 
-test('getLatestNotification returns the correct string', () => {
-  expect(getLatestNotification()).toBe('<strong>Urgent requirement</strong> - complete by EOD');
+  test('getLatestNotification returns the expected string', () => {
+    expect(getLatestNotification()).toBe('<strong>Urgent requirement</strong> - complete by EOD');
+  });
 });

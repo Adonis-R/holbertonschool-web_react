@@ -1,30 +1,27 @@
 .App-body {
-  display: flex;
-  flex-direction: column;
-  height: 60vh;
-  padding: 20px 20px 20px 40px;
-  border-top: 5px red solid;
+  padding: 2rem;
+  flex: 1;
 }
 
 .App-body p {
-  font-family: 'Roboto', sans-serif;
-  font-size: 1.3rem;
+  margin-bottom: 1rem;
 }
 
-.App-body .form {
-  margin: 20px 0;
-  font-size: 1.2rem;
-  font-family: 'Roboto', sans-serif;
+form {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
 }
 
-.App-body .form label{
-  padding-right: 10px;
+form input {
+  padding: 0 0.25rem;
 }
 
-#email, #password {
-  margin-right: 10px
-}
-
-.form button {
-  cursor: pointer;
+form button {
+  padding: 0 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -1,75 +1,83 @@
-import { Component } from 'react';
-import './App.css';
+import React, { Fragment } from 'react';
+import holbertonLogo from '../assets/holberton-logo.jpg';
+import '../App/App.css';
+import { getCurrentYear, getFooterCopy } from '../utils/utils';
 import Notifications from '../Notifications/Notifications';
-import Footer from '../Footer/Footer';
 import Header from '../Header/Header';
 import Login from '../Login/Login';
+import Footer from '../Footer/Footer';
 import CourseList from '../CourseList/CourseList';
-import { getLatestNotification } from '../utils/utils';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import BodySection from '../BodySection/BodySection';
+import { getLatestNotification } from "../utils/utils";
 
-const notificationsList = [
-  { id:1, type:'default', value:'New course available' },
-  { id:2, type:'urgent', value:'New resume available' },
-  { id:3, type:'urgent', html:{ __html: getLatestNotification()} }
-];
+class App extends React.Component {
+  static defaultProps = {
+    logOut: () => {},
+    isLoggedIn: false,
+  };
 
-const coursesList = [
-  { id:1, name:'ES6', credit:60 },
-  { id:2, name:'Webpack', credit:20 },
-  { id:3, name:'React', credit:40 }
-];
-
-class App extends Component {
-  constructor(props) {
-    super(props);
-  }
+  handleKeyDown = (e) => {
+    if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
+      window.alert('Logging you out');
+      this.props.logOut();
+    }
+  };
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeydown);
-  }
-  
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown);
+    window.addEventListener('keydown', this.handleKeyDown);
   }
 
-  handleKeydown = (e) => {
-    if (e.ctrlKey && e.key === "h" ) {
-      alert("Logging you out");
-      if (this.props.logOut) {
-        this.props.logOut();
-      }
-    }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
   }
 
   render() {
-    const { isLoggedIn = false, logOut = () => {} } = this.props;
+    const { isLoggedIn } = this.props;
+
+    const notificationsList = [
+      {
+        id: 1,
+        type: "default",
+        value: "New course available"
+      },
+      {
+        id: 2,
+        type: "urgent",
+        value: "New resume available"
+      },
+      {
+        id: 3,
+        type: "urgent",
+        value: getLatestNotification()
+      }
+    ];
+
+    const coursesList = [
+      { id: 1, name: 'ES6', credit: 60 },
+      { id: 2, name: 'Webpack', credit: 20 },
+      { id: 3, name: 'React', credit: 40 }
+    ];
 
     return (
-      <>
-        <Notifications notifications={notificationsList} />
-        <>
-          <Header />
-          {
-            !isLoggedIn ? (
-              <BodySectionWithMarginBottom title='Log in to continue'>
-                <Login />
-              </BodySectionWithMarginBottom>
-            ) : (
-              <BodySectionWithMarginBottom title='Course list'>
-                <CourseList courses={coursesList} />
-              </BodySectionWithMarginBottom>
-            )
-          }
-          <BodySection title="News from the School">
-            <p>
-              Holberton School news goes here
-            </p>
-          </BodySection>
-        </>
-        <Footer />
-      </>
+      <Fragment>
+        <div className='root-notifications'>
+          <Notifications notifications={notificationsList} />
+        </div>
+        <div className='App-header'>
+          <img className='holberton-logo' src={holbertonLogo} alt='holberton logo' />
+          <h1>School Dashboard</h1>
+        </div>
+        <BodySectionWithMarginBottom title={isLoggedIn ? 'Course list' : 'Log in to continue'}>
+          {isLoggedIn ? <CourseList courses={coursesList} /> : <Login />}
+        </BodySectionWithMarginBottom>
+        <BodySection title="News from the School">
+          <p>Holberton School News goes here</p>
+        </BodySection>
+        <div className='App-footer'>
+          <p>Copyright {getCurrentYear()} - {getFooterCopy()}</p>
+        </div>
+      </Fragment>
     );
   }
 }

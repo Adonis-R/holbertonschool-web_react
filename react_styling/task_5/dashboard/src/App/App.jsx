@@ -43,15 +43,27 @@ export default class App extends Component {
   }
 
   render() {
-    const { isLoggedIn = false, logOut = () => {} } = this.props;
+    const { isLoggedIn = true, logOut = () => {} } = this.props;
 
     return (
-      <div className="relative px-3 min-h-screen flex flex-col">
+      <div className="
+        relative
+        px-3
+        max-[912px]:px-2
+        max-[520px]:px-2
+        min-h-screen
+        flex
+        flex-col
+      ">
+        {/* Notifications layer */}
         <div className="absolute top-0 right-0 z-10">
-          <Notifications notifications={[]} />
+          <Notifications notifications={notificationsList} />
         </div>
-        <div className="flex-1">
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col">
           <Header />
+
           {
             !isLoggedIn ? (
               <BodySectionWithMarginBottom title='Log in to continue'>
@@ -63,12 +75,24 @@ export default class App extends Component {
               </BodySectionWithMarginBottom>
             )
           }
+
           <BodySection title="News from the School">
-            <p>
-              Holberton School news goes here
+            <p className="
+              max-w-full
+              break-words
+              text-base
+              max-[520px]:text-sm
+              leading-relaxed
+            ">
+              ipsum Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Similique, asperiores architecto blanditiis fuga doloribus sit
+              illum aliquid ea distinctio minus accusantium, impedit quo
+              voluptatibus ut magni dicta. Recusandae, quia dicta?
             </p>
           </BodySection>
         </div>
+
+        {/* Footer always at the bottom */}
         <Footer />
       </div>
     );

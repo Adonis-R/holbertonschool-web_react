@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+e2e-tests
 
 # Editor directories and files
 .vscode/*
@@ -25,4 +26,3 @@ dist-ssr
 test.spec.js
 faultyJSX-component.jsx
 testRunner.js
-testtRunner.js

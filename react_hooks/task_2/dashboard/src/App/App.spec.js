@@ -1,74 +1,125 @@
 import { render, fireEvent, screen } from '@testing-library/react';
 import App from './App';
 
-test('The App component renders without crashing', () => {
-  render(<App />);
-});
+describe('App login / logout state behavior', () => {
+  test('The App component renders without crashing', () => {
+    render(<App />);
+  });
 
-test('The App component renders Login by default (user not logged in)', () => {
-  render(<App />);
+  test('By default, Login is displayed and CourseList is NOT displayed', () => {
+    render(<App />);
 
-  const emailLabelElement = screen.getByLabelText(/email/i);
-  const passwordLabelElement = screen.getByLabelText(/password/i);
-  const buttonElements = screen.getAllByRole('button', { name: /ok/i })
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
-  expect(emailLabelElement).toBeInTheDocument()
-  expect(passwordLabelElement).toBeInTheDocument()
-  expect(buttonElements.length).toBeGreaterThanOrEqual(1)
-});
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+    expect(screen.queryByRole('table')).toBeNull();
+  });
 
-test('it should call the logOut prop once whenever the user hits "Ctrl" + "h" keyboard keys', () => {
-  const logOutMock = jest.fn();
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  test('After login, CourseList is displayed', () => {
+    render(<App />);
 
-  render(<App logOut={logOutMock} />);
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
 
-  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
 
-  expect(logOutMock).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
 
-  alertSpy.mockRestore();
-});
+    const tableElement = screen.getByRole('table');
+    expect(tableElement).toBeInTheDocument();
+  });
 
-test('it should display an alert window whenever the user hit "ctrl" + "h" keyboard keys', () => {
-  const logoutSpy = jest.fn();
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  test('After logout, CourseList is hidden and Login is displayed again', () => {
+    render(<App />);
 
-  render(<App logOut={logoutSpy} />);
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
 
-  fireEvent.keyDown(document, { ctrlKey: true, key: 'h' });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
 
-  expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
 
-  alertSpy.mockRestore();
-});
+    fireEvent.click(screen.getByText(/logout/i));
 
-test('it should display "News from the School" title and paragraph by default', () => {
-  render(<App />);
+    expect(screen.queryByRole('table')).toBeNull();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+  });
 
-  const newsTitle = screen.getByRole('heading', { name: /news from the school/i });
-  const newsParagraph = screen.getByText(/holberton school news goes here/i);
+  test('Ctrl + h logs out the user and shows alert', () => {
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-  expect(newsTitle).toBeInTheDocument();
-  expect(newsParagraph).toBeInTheDocument();
-});
+    render(<App />);
 
-test('clicking on a notification item removes it from the list and logs the message', () => {
-  const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    // Login first
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@test.com' },
+    });
 
-  const { container } = render(<App />);
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: '1234' },
+    });
 
-  const notificationItems = container.querySelectorAll('[data-notification-type]');
-  const initialCount = notificationItems.length;
+    fireEvent.click(screen.getByRole('button', { name: /ok/i }));
 
-  if (notificationItems.length > 0) {
-    fireEvent.click(notificationItems[0]);
+    // Trigger Ctrl + h
+    fireEvent.keyDown(document, {
+      ctrlKey: true,
+      key: 'h',
+    });
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Notification \d+ has been marked as read/));
+    expect(alertSpy).toHaveBeenCalledWith('Logging you out');
+    expect(screen.queryByText(/logout/i)).toBeNull();
 
-    const updatedNotificationItems = container.querySelectorAll('[data-notification-type]');
-    expect(updatedNotificationItems.length).toBe(initialCount - 1);
-  }
+    alertSpy.mockRestore();
+  });
 
-  consoleSpy.mockRestore();
+  test('it should display "News from the School" title and paragraph by default', () => {
+    render(<App />);
+
+    const newsTitle = screen.getByRole('heading', {
+      name: /news from the school/i,
+    });
+
+    const newsParagraph = screen.getByText(
+      /holberton school news goes here/i
+    );
+
+    expect(newsTitle).toBeInTheDocument();
+    expect(newsParagraph).toBeInTheDocument();
+  });
+
+  // ✅ NOUVEAU TEST : Notifications
+  test('Clicking on a notification removes it and logs the correct message', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    render(<App />);
+
+    // Ouvre le panneau de notifications
+    fireEvent.click(screen.getByText(/your notifications/i));
+
+    // Vérifie qu'une notification est présente
+    const notification = screen.getByText(/new course available/i);
+    expect(notification).toBeInTheDocument();
+
+    // Clique sur la notification
+    fireEvent.click(notification);
+
+    // La notification doit être supprimée
+    expect(screen.queryByText(/new course available/i)).toBeNull();
+
+    // Le bon log doit être envoyé
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Notification 1 has been marked as read'
+    );
+
+    consoleSpy.mockRestore();
+  });
 });

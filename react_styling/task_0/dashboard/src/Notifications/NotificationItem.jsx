@@ -1,36 +1,42 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 
-class NotificationItem extends PureComponent {
+class NotificationItem extends React.PureComponent {
+  handleClick = () => {
+    const { id, markAsRead } = this.props;
+    if (markAsRead) {
+      markAsRead(id);
+    }
+  };
 
   render() {
-    const { type, html, value, markAsRead, id } = this.props;
-    console.log(`Rendering NotificationItem with id: ${id}, type: ${type}, value: ${value}`);
-    if (type === 'default') {
+    const { type = 'default', html, value } = this.props;
+    const colors = {
+      urgent: 'red',
+      default: 'blue'
+    };
+
+    const color = colors[type];
+
+    if (html) {
       return (
-        <li 
-          style={{color: "blue"}} 
+        <li
           data-notification-type={type}
-          onClick={() => markAsRead(id)}
-        >{value}</li>
-      );
-    } else if (type === 'urgent' && html !== undefined) {
-      return (
-        <li 
-          style={{color: "red"}} 
-          data-notification-type={type} 
-          dangerouslySetInnerHTML={html}
-          onClick={() => markAsRead(id)}
-        ></li>
-      );
-    } else {
-      return (
-        <li 
-          style={{color: "red"}} 
-          data-notification-type={type}
-          onClick={() => markAsRead(id)}
-        >{value}</li>
+          onClick={this.handleClick}
+          dangerouslySetInnerHTML={{ __html: html }}
+          style={{ color }}
+        />
       );
     }
+
+    return (
+      <li
+        data-notification-type={type}
+        onClick={this.handleClick}
+        style={{ color }}
+      >
+        {value}
+      </li>
+    );
   }
 }
 

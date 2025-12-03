@@ -1,14 +1,6 @@
 import { render } from '@testing-library/react';
-import { StyleSheetTestUtils } from 'aphrodite';
 import BodySectionWithMarginBottom from './BodySectionWithMarginBottom';
 
-beforeAll(() => {
-  StyleSheetTestUtils.suppressStyleInjection();
-});
-
-afterAll(() => {
-  StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-});
 
 const mockBodySection = jest.fn();
 jest.mock("./BodySection", () => {
@@ -35,9 +27,7 @@ describe('BodySectionWithMarginBottom', () => {
       );
 
       expect(mockBodySection).toHaveBeenCalled();
-
-      const classNames = container.firstChild.className;
-      expect(classNames).toMatch(/bodySectionWithMargin_/);
+      expect(container.firstChild.classList.contains('bodySectionWithMargin')).toBe(true);
       expect(mockBodySection).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Hello!",
@@ -45,8 +35,7 @@ describe('BodySectionWithMarginBottom', () => {
         })
       );
       expect(container.firstChild).toHaveTextContent('Hello!');
-
-      const bodySectionWithMargin = container.firstChild;
+      const bodySectionWithMargin = container.querySelector('.bodySectionWithMargin');
       expect(bodySectionWithMargin).toHaveTextContent('Hello!');
       expect(bodySectionWithMargin).toHaveTextContent('This is child content');
       expect(bodySectionWithMargin).toHaveTextContent('Hey there!');
@@ -66,9 +55,8 @@ describe('BodySectionWithMarginBottom', () => {
       </BodySectionWithMarginBottom>
     );
 
-    const divWithMargin = container.firstChild;
+    const divWithMargin = container.querySelector('.bodySectionWithMargin');
     expect(divWithMargin).toBeInTheDocument();
-
-    expect(divWithMargin.className).toMatch(/bodySectionWithMargin_/);
+    expect(divWithMargin).toHaveClass('bodySectionWithMargin');
   });
 });
